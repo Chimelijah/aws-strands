@@ -80,13 +80,25 @@ def create_agent(context_id: str) -> Agent:
     # - name: "Rules Agent"
     # - description: DESCRIPTION
     # - system_prompt: SYSTEM_PROMPT
+    return Agent(
+        name="Rules Agent",
+        description=DESCRIPTION,
+        system_prompt=SYSTEM_PROMPT,
+        tools=[query_dnd_rules]
+    )
+
     pass
 
 # TODO: Create an A2AServer instance with:
 # - agent_factory: The create_agent function defined above
 # - port: 8000 (Rules Agent port)
-a2a_server = None
+a2a_server = A2AServer(
+    agent_factory=create_agent,
+    port=8000
+)
 
 if __name__ == "__main__":
     # TODO: Start the A2A server
+    print("Starting Rules Agent A2A Server on port 8000...")
+    a2a_server.serve()
     pass

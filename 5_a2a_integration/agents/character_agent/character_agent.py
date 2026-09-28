@@ -157,13 +157,24 @@ def create_agent(context_id: str) -> Agent:
     # - name: "Character Creator Agent"
     # - description: DESCRIPTION
     # - system_prompt: SYSTEM_PROMPT
+    return Agent(
+        name="Character Creator Agent",
+        description=DESCRIPTION,
+        system_prompt=SYSTEM_PROMPT,
+        tools=[create_character, find_character_by_name, list_all_characters]
+    )
     pass
 
 # TODO: Create an A2AServer instance with:
 # - agent_factory: The create_agent function defined above
 # - port: 8001 (Character Agent port)
-a2a_server = None
+a2a_server = A2AServer(
+    agent_factory=create_agent,
+    port=8001
+)
 
 if __name__ == "__main__":
     # TODO: Start the A2A server
+    print("Starting Character Agent A2A Server on port 8001...")
+    a2a_server.serve()
     pass

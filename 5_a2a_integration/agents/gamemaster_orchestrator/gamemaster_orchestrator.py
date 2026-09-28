@@ -9,7 +9,7 @@ from typing import List
 from tinydb import TinyDB, Query
 from strands import Agent
 from strands.tools.mcp import MCPClient
-from mcp.client.streamable_http import streamablehttp_client
+from mcp.client.streamable_http import streamable_http_client
 from strands_tools.a2a_client import A2AClientToolProvider
 
 app = FastAPI(title="D&D Game Master API")
@@ -84,17 +84,20 @@ class StoryOutput(BaseModel):
     dice_rolls: List[DiceOutput] = Field(default=[], description="List of dice rolls with dice_type, result, and reason")
 
 try:
-    # TODO: Create MCP Client for dice rolling service
-    # Initialize MCPClient with a lambda that returns streamablehttp_client("http://localhost:8002/mcp")
-    mcp_client = None
+    # 1. Create MCP Client using the correct streamable-http transport
+    mcp_client = MCPClient(lambda: streamable_http_client("http://localhost:8002/mcp"))
 
-    # TODO: Create the A2A client with the A2AClientToolProvider and pass the list of the known agent urls
-    a2a_client = None
+    # 2. Create the A2A client with the A2AClientToolProvider
+    a2a_client = A2AClientToolProvider([
+        "http://localhost:8000",
+        "http://localhost:8001"
+    ])
 
+    # 3. Configure the Game Master Agent
     agent = Agent(
         system_prompt=SYSTEM_PROMPT,
-        # TODO: Create the gamemaster agent with both A2A and MCP tools
-        # TODO: Force the response to use the StoryOutput model
+        tools=[mcp_client, a2a_client],
+        structured_output_model=StoryOutput
     )
 except Exception as e:
     print(f"Error occurred: {str(e)}")
